@@ -1,18 +1,8 @@
 // Solar System.cpp : Defines the entry point for the application.
 //
 
-#include "framework.h"
-#include "Solar System.h"
-#include <d3d11.h>
-#pragma comment(lib, "d3d11.lib")
-#include "DDSTextureLoader.h"
-#include <DirectXMath.h>
-#include <Windows.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
-using namespace DirectX;
-using namespace std;
+#include "DirectXSetup.h"
+#include "DirectXVariables.h"
 
 #define MAX_LOADSTRING 100
 
@@ -20,6 +10,7 @@ using namespace std;
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+HWND window;									// Store the hWnd
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -60,7 +51,30 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		}
 		if (msg.message == WM_QUIT)
 			break;
+
+		RECT rect;
+		GetClientRect(window, &rect);
+		float aspectRatio = (rect.right - rect.left) / float(rect.bottom - rect.top);
+
+		Variables::deviceContext->OMSetRenderTargets(1, &Variables::renderTargetView, Variables::depthBufferView);
+
+		Variables::deviceContext->RSSetViewports(1, &Variables::viewPort);
+
+		float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		Variables::deviceContext->ClearRenderTargetView(Variables::renderTargetView, color);
+
+		Variables::deviceContext->ClearDepthStencilView(Variables::depthBufferView, D3D11_CLEAR_DEPTH, 1, 0);
+
+		Variables::swapChain->Present(0, 0);
 	}
+	Variables::depthBufferView->Release();
+	Variables::depthBuffer->Release();
+	Variables::constantBuffer->Release();
+	Variables::samplerState->Release();
+	Variables::renderTargetView->Release();
+	Variables::deviceContext->Release();
+	Variables::swapChain->Release();
+	Variables::device->Release();
 
 	return (int)msg.wParam;
 }
@@ -91,6 +105,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+
+	RECT myWinR;
+	GetClientRect(hWnd, &myWinR);
+	window = hWnd;
+
+	Setup::SetupDirectX(Variables::device, Variables::swapChain, Variables::deviceContext, Variables::viewPort, Variables::renderTargetView, hWnd, myWinR);
+
+	Setup::CreateSamplerState(Variables::samplerState, Variables::device);
+
+	Setup::CreateConstantBuffer(Variables::constantBuffer, Variables::device, sizeof(Structs::ConstantBuffer));
+
+	Setup::CreateDepthBuffer(Variables::depthBuffer, Variables::depthBufferView, Variables::device, myWinR);
 
 	return TRUE;
 }
