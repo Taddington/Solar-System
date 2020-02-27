@@ -12,6 +12,9 @@ namespace Structs
 		XMFLOAT4X4 ViewMatrix;
 		XMFLOAT4X4 ProjectionMatrix;
 		XMFLOAT4 Time;
+		XMFLOAT4 PointLightPos = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+		XMFLOAT4 PointLightColor = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
+		XMFLOAT4 PointLightRadius = XMFLOAT4(1000.0f, 0.0f, 0.0f, 0.0f);
 	};
 
 	struct Vertex

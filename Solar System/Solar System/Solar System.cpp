@@ -1,7 +1,17 @@
 // Solar System.cpp : Defines the entry point for the application.
 //
 
-#include "Object.h"
+#include "Matrix.h"
+
+#include "SkyboxVertexShader.csh"
+#include "SkyboxPixelShader.csh"
+#include "ModelVertexShader.csh"
+#include "ModelPixelShader.csh"
+
+Object Skybox;
+Object Spaceship;
+
+
 
 #define MAX_LOADSTRING 100
 
@@ -55,6 +65,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		GetClientRect(window, &rect);
 		float aspectRatio = (rect.right - rect.left) / float(rect.bottom - rect.top);
 
+
+		Matrix::GetInputForCamera();
+		XMMATRIX camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		XMStoreFloat4x4(&Variables::constants.ViewMatrix, camera);
+
+		XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(3.14f / 4, aspectRatio, 0.1f, 1000.0f);
+		XMStoreFloat4x4(&Variables::constants.ProjectionMatrix, projectionMatrix);
+
+		static float timer = 0; timer += 0.0025f;
+		XMVECTOR time = XMVectorSet(timer, 0.0f, 0.0f, 0.0f);
+		XMStoreFloat4(&Variables::constants.Time, time);
+
+
 		Variables::deviceContext->OMSetRenderTargets(1, &Variables::renderTargetView, Variables::depthBufferView);
 
 		Variables::deviceContext->RSSetViewports(1, &Variables::viewPort);
@@ -62,10 +85,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		Variables::deviceContext->ClearRenderTargetView(Variables::renderTargetView, color);
 
+
+
+		XMMATRIX worldMatrix = XMMatrixTranslationFromVector(XMMatrixInverse(0, camera).r[3]);
+		Skybox.RenderMesh(Variables::deviceContext, worldMatrix);
+
 		Variables::deviceContext->ClearDepthStencilView(Variables::depthBufferView, D3D11_CLEAR_DEPTH, 1, 0);
+
+
+
+		worldMatrix = Matrix::target;
+		Spaceship.RenderMesh(Variables::deviceContext, worldMatrix);
 
 		Variables::swapChain->Present(0, 0);
 	}
+	Spaceship.Release();
+	Skybox.Release();
 	Variables::depthBufferView->Release();
 	Variables::depthBuffer->Release();
 	Variables::constantBuffer->Release();
@@ -116,6 +151,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	Setup::CreateConstantBuffer(Variables::constantBuffer, Variables::device, sizeof(Structs::ConstantBuffer));
 
 	Setup::CreateDepthBuffer(Variables::depthBuffer, Variables::depthBufferView, Variables::device, myWinR);
+
+	Skybox.CreateSkyBox();
+	Skybox.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Skybox.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, SkyboxVertexShader, sizeof(SkyboxVertexShader), SkyboxPixelShader, sizeof(SkyboxPixelShader));
+	Skybox.CreateTexture(Variables::device, L"Assets/Skybox_Space.dds");
+
+	Spaceship.LoadMesh("Assets/Spaceship.mesh");
+	Spaceship.ScaleMesh(0.5f);
+	Spaceship.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Spaceship.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Spaceship.CreateTexture(Variables::device, L"Assets/Spaceship.dds");
 
 	return TRUE;
 }

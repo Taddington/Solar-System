@@ -39,6 +39,9 @@
     <ClInclude Include="Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Solar System.cpp">
@@ -60,5 +63,11 @@
     <Image Include="Solar System.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SkyboxVertexShader.hlsl" />
+    <FxCompile Include="SkyboxPixelShader.hlsl" />
+    <FxCompile Include="ModelVertexShader.hlsl" />
+    <FxCompile Include="ModelPixelShader.hlsl" />
   </ItemGroup>
 </Project>

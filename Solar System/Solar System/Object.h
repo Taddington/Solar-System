@@ -18,7 +18,7 @@ public:
 	Object();
 	~Object();
 	void LoadMesh(const char* MeshFileName);
-	void ScaleMesh(int Scalar);
+	void ScaleMesh(float Scalar);
 	void CreateVertexBufferAndIndexBuffer(ID3D11Device* Device);
 	void CreateVertexShaderAndPixelShaderAndInputLayout(ID3D11Device* Device, const void* VertexShader, SIZE_T SizeOfVertexShader, const void* PixelShader, SIZE_T SizeOfPixelShader);
 	void CreateTexture(ID3D11Device* Device, const wchar_t* Filename);
@@ -65,7 +65,7 @@ void Object::LoadMesh(const char* MeshFileName)
 	file.close();
 }
 
-void Object::ScaleMesh(int Scalar)
+void Object::ScaleMesh(float Scalar)
 {
 	for (int i = 0; i < mesh.vertexList.size(); ++i)
 	{
