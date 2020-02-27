@@ -1,13 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
-#pragma comment(lib, "d3d11.lib")
-#include "DDSTextureLoader.h"
-#include <DirectXMath.h>
-#include <Windows.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
+#include "DirectXSetup.h"
 using namespace DirectX;
 using namespace std;
 
@@ -15,10 +8,10 @@ namespace Structs
 {
 	struct ConstantBuffer
 	{
-		XMFLOAT4X4 wMatrix;
-		XMFLOAT4X4 vMatrix;
-		XMFLOAT4X4 pMatrix;
-		XMFLOAT4 timer;
+		XMFLOAT4X4 WorldMatrix;
+		XMFLOAT4X4 ViewMatrix;
+		XMFLOAT4X4 ProjectionMatrix;
+		XMFLOAT4 Time;
 	};
 
 	struct Vertex

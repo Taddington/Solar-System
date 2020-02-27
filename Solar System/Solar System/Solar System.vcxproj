@@ -151,6 +151,7 @@
     <ClInclude Include="DirectXSetup.h" />
     <ClInclude Include="DirectXVariables.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Solar System.h" />
     <ClInclude Include="targetver.h" />

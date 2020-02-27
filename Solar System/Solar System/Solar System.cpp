@@ -1,8 +1,7 @@
 // Solar System.cpp : Defines the entry point for the application.
 //
 
-#include "DirectXSetup.h"
-#include "DirectXVariables.h"
+#include "Object.h"
 
 #define MAX_LOADSTRING 100
 
