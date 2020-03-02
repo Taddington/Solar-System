@@ -17,6 +17,7 @@ Object Venus;
 Object Earth;
 Object Moon;
 Object Mars;
+Object Jupiter;
 
 #define MAX_LOADSTRING 100
 
@@ -121,7 +122,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		{
 			Matrix::FOV = 50.0f;
 			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-mercuryRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 		}
 		Mercury.RenderMesh(Variables::deviceContext, worldMatrix);
@@ -135,7 +136,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		{
 			Matrix::FOV = 50.0f;
 			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-venusRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 		}
 		Venus.RenderMesh(Variables::deviceContext, worldMatrix);
@@ -149,7 +150,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		{
 			Matrix::FOV = 50.0f;
 			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-earthRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 		}
 		Earth.RenderMesh(Variables::deviceContext, worldMatrix);
@@ -173,13 +174,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		{
 			Matrix::FOV = 50.0f;
 			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-marsRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 		}
 		Mars.RenderMesh(Variables::deviceContext, worldMatrix);
 
+		static float jupiterRotation = 0.0f; jupiterRotation += -0.8571f;
+		static float jupiterOrbit = 0.0f; jupiterOrbit += -0.000083f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0523599f), XMMatrixTranslation(570.4f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(jupiterRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(jupiterOrbit));
+		if (GetAsyncKeyState('5'))
+		{
+			Matrix::FOV = 5.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-jupiterRotation), worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Jupiter.RenderMesh(Variables::deviceContext, worldMatrix);
+
 		Variables::swapChain->Present(0, 0);
 	}
+	Jupiter.Release();
 	Mars.Release();
 	Moon.Release();
 	Earth.Release();
@@ -279,6 +295,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	Mars.CreateVertexBufferAndIndexBuffer(Variables::device);
 	Mars.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
 	Mars.CreateTexture(Variables::device, L"Assets/MarsTexture.dds");
+
+	Jupiter.LoadMesh("Assets/planet.mesh");
+	Jupiter.ScaleMesh(8.68f);
+	Jupiter.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Jupiter.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Jupiter.CreateTexture(Variables::device, L"Assets/JupiterTexture.dds");
 
 	return TRUE;
 }

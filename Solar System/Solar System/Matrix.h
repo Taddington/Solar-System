@@ -26,7 +26,7 @@ namespace Matrix
 
 	void GetInputForCamera()
 	{
-		float translationSpeed = 0.1f;
+		float translationSpeed = 0.5f;
 		float zLocal = 0.0f;
 		float xLocal = 0.0f;
 		float yGlobal = 0.0f;
