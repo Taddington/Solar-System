@@ -11,6 +11,8 @@ public:
 	ID3D11Buffer* indexBuffer;
 	ID3D11Texture2D* texture;
 	ID3D11ShaderResourceView* textureResourceView;
+	ID3D11Texture2D* texture2;
+	ID3D11ShaderResourceView* textureResourceView2;
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
 	Structs::Mesh mesh;
@@ -22,6 +24,7 @@ public:
 	void CreateVertexBufferAndIndexBuffer(ID3D11Device* Device);
 	void CreateVertexShaderAndPixelShaderAndInputLayout(ID3D11Device* Device, const void* VertexShader, SIZE_T SizeOfVertexShader, const void* PixelShader, SIZE_T SizeOfPixelShader);
 	void CreateTexture(ID3D11Device* Device, const wchar_t* Filename);
+	void CreateTexture2(ID3D11Device* Device, const wchar_t* Filename);
 	void RenderMesh(ID3D11DeviceContext* DeviceContext, XMMATRIX WorldPosition);
 	void CreateSkyBox();
 	void Release();
@@ -121,10 +124,23 @@ void Object::CreateTexture(ID3D11Device* Device, const wchar_t* Filename)
 	HRESULT hr = CreateDDSTextureFromFile(Device, Filename, (ID3D11Resource**)&texture, &textureResourceView);
 }
 
+void Object::CreateTexture2(ID3D11Device* Device, const wchar_t* Filename)
+{
+	HRESULT hr = CreateDDSTextureFromFile(Device, Filename, (ID3D11Resource**)&texture2, &textureResourceView2);
+}
+
 void Object::RenderMesh(ID3D11DeviceContext* DeviceContext, XMMATRIX WorldPosition)
 {
-	ID3D11ShaderResourceView* ShaderResourceViews[] = { textureResourceView };
-	DeviceContext->PSSetShaderResources(0, 1, ShaderResourceViews);
+	if (texture2 && textureResourceView2)
+	{
+		ID3D11ShaderResourceView* ShaderResourceViews[] = { textureResourceView, textureResourceView2 };
+		DeviceContext->PSSetShaderResources(0, 2, ShaderResourceViews);
+	}
+	else
+	{
+		ID3D11ShaderResourceView* ShaderResourceViews[] = { textureResourceView };
+		DeviceContext->PSSetShaderResources(0, 1, ShaderResourceViews);
+	}
 
 	DeviceContext->IASetInputLayout(inputLayout);
 	UINT Strides[] = { sizeof(Structs::Mesh) };
@@ -212,6 +228,10 @@ void Object::Release()
 	indexBuffer->Release();
 	texture->Release();
 	textureResourceView->Release();
+	if (texture2)
+		texture2->Release();
+	if (textureResourceView2)
+		textureResourceView2->Release();
 	vertexShader->Release();
 	pixelShader->Release();
 }

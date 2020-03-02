@@ -7,11 +7,15 @@
 #include "SkyboxPixelShader.csh"
 #include "ModelVertexShader.csh"
 #include "ModelPixelShader.csh"
+#include "SunPixelShader.csh"
+#include "EarthPixelShader.csh"
 
 Object Skybox;
-Object Spaceship;
-
-
+Object Sun;
+Object Mercury;
+Object Venus;
+Object Earth;
+Object Mars;
 
 #define MAX_LOADSTRING 100
 
@@ -67,10 +71,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 		Matrix::GetInputForCamera();
-		XMMATRIX camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		XMStoreFloat4x4(&Variables::constants.ViewMatrix, camera);
+		XMStoreFloat4x4(&Variables::constants.ViewMatrix, Matrix::camera);
 
-		XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(3.14f / 4, aspectRatio, 0.1f, 1000.0f);
+		XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(3.14f / Matrix::FOV, aspectRatio, 0.1f, 5000.0f);
 		XMStoreFloat4x4(&Variables::constants.ProjectionMatrix, projectionMatrix);
 
 		static float timer = 0; timer += 0.0025f;
@@ -87,19 +90,90 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 
-		XMMATRIX worldMatrix = XMMatrixTranslationFromVector(XMMatrixInverse(0, camera).r[3]);
+		XMMATRIX worldMatrix = XMMatrixTranslationFromVector(XMMatrixInverse(0, Matrix::camera).r[3]);
 		Skybox.RenderMesh(Variables::deviceContext, worldMatrix);
 
 		Variables::deviceContext->ClearDepthStencilView(Variables::depthBufferView, D3D11_CLEAR_DEPTH, 1, 0);
 
+		Matrix::FOV = 2.0f;
+		if (!GetAsyncKeyState('0') || !GetAsyncKeyState('1'))
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::view);
+		static float sunRotation = 0.0f; sunRotation += -0.0123f;
+		worldMatrix = XMMatrixIdentity();
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(sunRotation), worldMatrix);
+		if (GetAsyncKeyState('0'))
+		{
+			Matrix::FOV = 2.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-sunRotation), worldMatrix);
+			Matrix::target = XMMatrixMultiply(XMMatrixTranslation(0, 43.265, -86.53f), Matrix::target);
+			Matrix::view = XMMatrixTranslation(0, 43.265f, -90.0f);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Sun.RenderMesh(Variables::deviceContext, worldMatrix);
 
+		static float mercuryRotation = 0.0f; mercuryRotation += -0.0062f;
+		static float mercuryOrbit = 0.0f; mercuryOrbit += -0.004f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0349066f), XMMatrixTranslation(122.133f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(mercuryRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(mercuryOrbit));
+		if (GetAsyncKeyState('1'))
+		{
+			Matrix::FOV = 50.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-mercuryRotation), worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Mercury.RenderMesh(Variables::deviceContext, worldMatrix);
 
-		worldMatrix = Matrix::target;
-		Spaceship.RenderMesh(Variables::deviceContext, worldMatrix);
+		static float venusRotation = 0.0f; venusRotation += 0.0021f;
+		static float venusOrbit = 0.0f; venusOrbit += -0.0016f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0523599f), XMMatrixTranslation(153.373f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(venusRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(venusOrbit));
+		if (GetAsyncKeyState('2'))
+		{
+			Matrix::FOV = 50.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-venusRotation), worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Venus.RenderMesh(Variables::deviceContext, worldMatrix);
+
+		static float earthRotation = 0.0f; earthRotation += -0.36f;
+		static float earthOrbit = 0.0f; earthOrbit += -0.00098f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.408407f), XMMatrixTranslation(178.647f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(earthRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(earthOrbit));
+		if (GetAsyncKeyState('3'))
+		{
+			Matrix::FOV = 50.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-earthRotation), worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Earth.RenderMesh(Variables::deviceContext, worldMatrix);
+
+		static float marsRotation = 0.0f; marsRotation += -0.36f;
+		static float marsOrbit = 0.0f; marsOrbit += -0.00052f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.436332f), XMMatrixTranslation(227.354f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(marsRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(marsOrbit));
+		if (GetAsyncKeyState('4'))
+		{
+			Matrix::FOV = 50.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-marsRotation), worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 43.265, -90);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+		Mars.RenderMesh(Variables::deviceContext, worldMatrix);
 
 		Variables::swapChain->Present(0, 0);
 	}
-	Spaceship.Release();
+	Mars.Release();
+	Earth.Release();
+	Venus.Release();
+	Mercury.Release();
+	Sun.Release();
 	Skybox.Release();
 	Variables::depthBufferView->Release();
 	Variables::depthBuffer->Release();
@@ -157,11 +231,36 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	Skybox.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, SkyboxVertexShader, sizeof(SkyboxVertexShader), SkyboxPixelShader, sizeof(SkyboxPixelShader));
 	Skybox.CreateTexture(Variables::device, L"Assets/Skybox_Space.dds");
 
-	Spaceship.LoadMesh("Assets/Spaceship.mesh");
-	Spaceship.ScaleMesh(0.5f);
-	Spaceship.CreateVertexBufferAndIndexBuffer(Variables::device);
-	Spaceship.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
-	Spaceship.CreateTexture(Variables::device, L"Assets/Spaceship.dds");
+	Sun.LoadMesh("Assets/planet.mesh");
+	Sun.ScaleMesh(86.53f);
+	Sun.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Sun.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), SunPixelShader, sizeof(SunPixelShader));
+	Sun.CreateTexture(Variables::device, L"Assets/SunTexture.dds");
+
+	Mercury.LoadMesh("Assets/planet.mesh");
+	Mercury.ScaleMesh(0.3f);
+	Mercury.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Mercury.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Mercury.CreateTexture(Variables::device, L"Assets/MercuryTexture.dds");
+
+	Venus.LoadMesh("Assets/planet.mesh");
+	Venus.ScaleMesh(0.75f);
+	Venus.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Venus.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Venus.CreateTexture(Variables::device, L"Assets/VenusTexture.dds");
+
+	Earth.LoadMesh("Assets/planet.mesh");
+	Earth.ScaleMesh(0.79f);
+	Earth.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Earth.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), EarthPixelShader, sizeof(EarthPixelShader));
+	Earth.CreateTexture(Variables::device, L"Assets/DayEarthTexture.dds");
+	Earth.CreateTexture2(Variables::device, L"Assets/NightEarthTexture.dds");
+
+	Mars.LoadMesh("Assets/planet.mesh");
+	Mars.ScaleMesh(0.42f);
+	Mars.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Mars.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Mars.CreateTexture(Variables::device, L"Assets/MarsTexture.dds");
 
 	return TRUE;
 }

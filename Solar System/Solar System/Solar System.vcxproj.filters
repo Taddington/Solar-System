@@ -69,5 +69,7 @@
     <FxCompile Include="SkyboxPixelShader.hlsl" />
     <FxCompile Include="ModelVertexShader.hlsl" />
     <FxCompile Include="ModelPixelShader.hlsl" />
+    <FxCompile Include="SunPixelShader.hlsl" />
+    <FxCompile Include="EarthPixelShader.hlsl" />
   </ItemGroup>
 </Project>

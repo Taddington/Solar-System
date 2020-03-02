@@ -30,7 +30,7 @@ float4 main(OutputVertex inputPixel) : SV_TARGET
 
 	float4 finalColor = 0;
 	finalColor += pointResult;
-	finalColor = saturate(finalColor + float4(0.3f, 0.3f, 0.3f, 0.0f));
+	finalColor = saturate(finalColor + float4(0.1f, 0.1f, 0.1f, 0.0f));
 
 	finalColor *= tex.Sample(samp, inputPixel.uvws);
 	finalColor.a = 1;
