@@ -15,6 +15,7 @@ Object Sun;
 Object Mercury;
 Object Venus;
 Object Earth;
+Object Moon;
 Object Mars;
 
 #define MAX_LOADSTRING 100
@@ -96,7 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		Variables::deviceContext->ClearDepthStencilView(Variables::depthBufferView, D3D11_CLEAR_DEPTH, 1, 0);
 
 		Matrix::FOV = 2.0f;
-		if (!GetAsyncKeyState('0') || !GetAsyncKeyState('1'))
+		if (!GetAsyncKeyState('0'))
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::view);
 		static float sunRotation = 0.0f; sunRotation += -0.0123f;
 		worldMatrix = XMMatrixIdentity();
@@ -153,6 +154,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		}
 		Earth.RenderMesh(Variables::deviceContext, worldMatrix);
 
+		static float moonOrbitAndRotation = 0.0f; moonOrbitAndRotation += -0.013f;
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.408407f), XMMatrixTranslation(178.647f, 0.0f, 0.0f));
+		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(moonOrbitAndRotation), worldMatrix);
+		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(earthOrbit));
+		XMMATRIX tempMat = XMMatrixTranslation(1.034f, 0.0f, 0.0f);
+		XMMATRIX tempRot = XMMatrixRotationY(moonOrbitAndRotation);
+		tempMat = XMMatrixMultiply(tempMat, tempRot);
+		worldMatrix = XMMatrixMultiply(tempMat, worldMatrix);
+		Moon.RenderMesh(Variables::deviceContext, worldMatrix);
+
 		static float marsRotation = 0.0f; marsRotation += -0.36f;
 		static float marsOrbit = 0.0f; marsOrbit += -0.00052f;
 		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.436332f), XMMatrixTranslation(227.354f, 0.0f, 0.0f));
@@ -170,6 +181,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		Variables::swapChain->Present(0, 0);
 	}
 	Mars.Release();
+	Moon.Release();
 	Earth.Release();
 	Venus.Release();
 	Mercury.Release();
@@ -255,6 +267,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	Earth.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), EarthPixelShader, sizeof(EarthPixelShader));
 	Earth.CreateTexture(Variables::device, L"Assets/DayEarthTexture.dds");
 	Earth.CreateTexture2(Variables::device, L"Assets/NightEarthTexture.dds");
+
+	Moon.LoadMesh("Assets/planet.mesh");
+	Moon.ScaleMesh(0.21f);
+	Moon.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Moon.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Moon.CreateTexture(Variables::device, L"Assets/MoonTexture.dds");
 
 	Mars.LoadMesh("Assets/planet.mesh");
 	Mars.ScaleMesh(0.42f);
