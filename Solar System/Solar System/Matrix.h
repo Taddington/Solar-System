@@ -73,4 +73,43 @@ namespace Matrix
 
 		viewer = XMMatrixMultiply(view, target);
 	}
+
+	void CreatePlanetOrbit(Object& planet, float rotation, float orbit, float angle, float distance, char zoom , float FOV)
+	{
+		planet.worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(angle), XMMatrixTranslation(distance, 0.0f, 0.0f));
+		planet.worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), planet.worldMatrix);
+		planet.worldMatrix = XMMatrixMultiply(planet.worldMatrix, XMMatrixRotationY(orbit));
+		if (GetAsyncKeyState(zoom))
+		{
+			Matrix::FOV = FOV;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-rotation), planet.worldMatrix);
+			Matrix::view = XMMatrixTranslation(0, 15, -30);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+	}
+
+	void CreateMoonOrbit(Object& moon, float rotationAndOrbit, float planetOrbit, float planetAngle, float planetDistance, float distanceFromPlanet)
+	{
+		moon.worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(planetAngle), XMMatrixTranslation(planetDistance, 0.0f, 0.0f));
+		moon.worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotationAndOrbit), moon.worldMatrix);
+		moon.worldMatrix = XMMatrixMultiply(moon.worldMatrix, XMMatrixRotationY(planetOrbit));
+		XMMATRIX tempMat = XMMatrixTranslation(distanceFromPlanet, 0.0f, 0.0f);
+		XMMATRIX tempRot = XMMatrixRotationY(rotationAndOrbit);
+		tempMat = XMMatrixMultiply(tempMat, tempRot);
+		moon.worldMatrix = XMMatrixMultiply(tempMat, moon.worldMatrix);
+	}
+
+	void CreateSunRotation(Object& sun, float rotation)
+	{
+		sun.worldMatrix = XMMatrixIdentity();
+		sun.worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), sun.worldMatrix);
+		if (GetAsyncKeyState('0'))
+		{
+			Matrix::FOV = 2.0f;
+			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-rotation), sun.worldMatrix);
+			Matrix::target = XMMatrixMultiply(XMMatrixTranslation(0, 43.265, -86.53f), Matrix::target);
+			Matrix::view = XMMatrixTranslation(0, 43.265f, -90.0f);
+			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+		}
+	}
 }

@@ -15,6 +15,7 @@ public:
 	ID3D11ShaderResourceView* textureResourceView2;
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
+	XMMATRIX worldMatrix;
 	Structs::Mesh mesh;
 
 	Object();
@@ -25,7 +26,7 @@ public:
 	void CreateVertexShaderAndPixelShaderAndInputLayout(ID3D11Device* Device, const void* VertexShader, SIZE_T SizeOfVertexShader, const void* PixelShader, SIZE_T SizeOfPixelShader);
 	void CreateTexture(ID3D11Device* Device, const wchar_t* Filename);
 	void CreateTexture2(ID3D11Device* Device, const wchar_t* Filename);
-	void RenderMesh(ID3D11DeviceContext* DeviceContext, XMMATRIX WorldPosition);
+	void RenderMesh(ID3D11DeviceContext* DeviceContext);
 	void CreateSkyBox();
 	void Release();
 };
@@ -129,7 +130,7 @@ void Object::CreateTexture2(ID3D11Device* Device, const wchar_t* Filename)
 	HRESULT hr = CreateDDSTextureFromFile(Device, Filename, (ID3D11Resource**)&texture2, &textureResourceView2);
 }
 
-void Object::RenderMesh(ID3D11DeviceContext* DeviceContext, XMMATRIX WorldPosition)
+void Object::RenderMesh(ID3D11DeviceContext* DeviceContext)
 {
 	if (texture2 && textureResourceView2)
 	{
@@ -154,7 +155,7 @@ void Object::RenderMesh(ID3D11DeviceContext* DeviceContext, XMMATRIX WorldPositi
 	DeviceContext->VSSetShader(vertexShader, 0, 0);
 	DeviceContext->PSSetShader(pixelShader, 0, 0);
 
-	XMStoreFloat4x4(&Variables::constants.WorldMatrix, WorldPosition);
+	XMStoreFloat4x4(&Variables::constants.WorldMatrix, worldMatrix);
 
 	D3D11_MAPPED_SUBRESOURCE gpuBuffer;
 	HRESULT hr = DeviceContext->Map(Variables::constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &gpuBuffer);

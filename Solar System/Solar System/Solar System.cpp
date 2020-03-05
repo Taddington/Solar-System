@@ -92,106 +92,47 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 
-		XMMATRIX worldMatrix = XMMatrixTranslationFromVector(XMMatrixInverse(0, Matrix::camera).r[3]);
-		Skybox.RenderMesh(Variables::deviceContext, worldMatrix);
+		Skybox.worldMatrix = XMMatrixTranslationFromVector(XMMatrixInverse(0, Matrix::camera).r[3]);
+		Skybox.RenderMesh(Variables::deviceContext);
 
 		Variables::deviceContext->ClearDepthStencilView(Variables::depthBufferView, D3D11_CLEAR_DEPTH, 1, 0);
 
 		Matrix::FOV = 2.0f;
 		if (!GetAsyncKeyState('0'))
 			Matrix::camera = XMMatrixInverse(nullptr, Matrix::view);
+
 		static float sunRotation = 0.0f; sunRotation += -0.0123f;
-		worldMatrix = XMMatrixIdentity();
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(sunRotation), worldMatrix);
-		if (GetAsyncKeyState('0'))
-		{
-			Matrix::FOV = 2.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-sunRotation), worldMatrix);
-			Matrix::target = XMMatrixMultiply(XMMatrixTranslation(0, 43.265, -86.53f), Matrix::target);
-			Matrix::view = XMMatrixTranslation(0, 43.265f, -90.0f);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Sun.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreateSunRotation(Sun, sunRotation);
+		Sun.RenderMesh(Variables::deviceContext);
 
 		static float mercuryRotation = 0.0f; mercuryRotation += -0.0062f;
 		static float mercuryOrbit = 0.0f; mercuryOrbit += -0.004f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0349066f), XMMatrixTranslation(122.133f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(mercuryRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(mercuryOrbit));
-		if (GetAsyncKeyState('1'))
-		{
-			Matrix::FOV = 50.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-mercuryRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 15, -30);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Mercury.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreatePlanetOrbit(Mercury, mercuryRotation, mercuryOrbit, -0.0349066f, 122.133f, '1', 50.0f);
+		Mercury.RenderMesh(Variables::deviceContext);
 
 		static float venusRotation = 0.0f; venusRotation += 0.0021f;
 		static float venusOrbit = 0.0f; venusOrbit += -0.0016f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0523599f), XMMatrixTranslation(153.373f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(venusRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(venusOrbit));
-		if (GetAsyncKeyState('2'))
-		{
-			Matrix::FOV = 50.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-venusRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 15, -30);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Venus.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreatePlanetOrbit(Venus, venusRotation, venusOrbit, -0.0523599f, 153.373f, '2', 50.0f);
+		Venus.RenderMesh(Variables::deviceContext);
 
 		static float earthRotation = 0.0f; earthRotation += -0.36f;
 		static float earthOrbit = 0.0f; earthOrbit += -0.00098f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.408407f), XMMatrixTranslation(178.647f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(earthRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(earthOrbit));
-		if (GetAsyncKeyState('3'))
-		{
-			Matrix::FOV = 50.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-earthRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 15, -30);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Earth.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreatePlanetOrbit(Earth, earthRotation, earthOrbit, -0.408407f, 178.647f, '3', 50.0f);
+		Earth.RenderMesh(Variables::deviceContext);
 
 		static float moonOrbitAndRotation = 0.0f; moonOrbitAndRotation += -0.013f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.408407f), XMMatrixTranslation(178.647f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(moonOrbitAndRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(earthOrbit));
-		XMMATRIX tempMat = XMMatrixTranslation(1.034f, 0.0f, 0.0f);
-		XMMATRIX tempRot = XMMatrixRotationY(moonOrbitAndRotation);
-		tempMat = XMMatrixMultiply(tempMat, tempRot);
-		worldMatrix = XMMatrixMultiply(tempMat, worldMatrix);
-		Moon.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreateMoonOrbit(Moon, moonOrbitAndRotation, earthOrbit, -0.408407f, 178.647f, 1.034f);
+		Moon.RenderMesh(Variables::deviceContext);
 
 		static float marsRotation = 0.0f; marsRotation += -0.36f;
 		static float marsOrbit = 0.0f; marsOrbit += -0.00052f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.436332f), XMMatrixTranslation(227.354f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(marsRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(marsOrbit));
-		if (GetAsyncKeyState('4'))
-		{
-			Matrix::FOV = 50.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-marsRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 15, -30);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Mars.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreatePlanetOrbit(Mars, marsRotation, marsOrbit, -0.436332f, 227.354f, '4', 50.0f);
+		Mars.RenderMesh(Variables::deviceContext);
 
 		static float jupiterRotation = 0.0f; jupiterRotation += -0.8571f;
 		static float jupiterOrbit = 0.0f; jupiterOrbit += -0.000083f;
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationZ(-0.0523599f), XMMatrixTranslation(570.4f, 0.0f, 0.0f));
-		worldMatrix = XMMatrixMultiply(XMMatrixRotationY(jupiterRotation), worldMatrix);
-		worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixRotationY(jupiterOrbit));
-		if (GetAsyncKeyState('5'))
-		{
-			Matrix::FOV = 5.0f;
-			Matrix::target = XMMatrixMultiply(XMMatrixRotationY(-jupiterRotation), worldMatrix);
-			Matrix::view = XMMatrixTranslation(0, 15, -30);
-			Matrix::camera = XMMatrixInverse(nullptr, Matrix::look_at(Matrix::viewer.r[3], Matrix::target.r[3], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
-		}
-		Jupiter.RenderMesh(Variables::deviceContext, worldMatrix);
+		Matrix::CreatePlanetOrbit(Jupiter, jupiterRotation, jupiterOrbit, -0.0523599f, 570.4f, '5', 5.0f);
+		Jupiter.RenderMesh(Variables::deviceContext);
 
 		Variables::swapChain->Present(0, 0);
 	}
