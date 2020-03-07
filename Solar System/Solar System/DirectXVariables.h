@@ -14,7 +14,7 @@ namespace Structs
 		XMFLOAT4 Time;
 		XMFLOAT4 PointLightPos = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		XMFLOAT4 PointLightColor = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
-		XMFLOAT4 PointLightRadius = XMFLOAT4(1000.0f, 0.0f, 0.0f, 0.0f);
+		XMFLOAT4 PointLightRadius = XMFLOAT4(4000.0f, 0.0f, 0.0f, 0.0f);
 	};
 
 	struct Vertex
@@ -43,5 +43,17 @@ namespace Variables
 	ID3D11DepthStencilView* depthBufferView;
 	ID3D11SamplerState* samplerState;
 	Structs::ConstantBuffer constants;
+
+	void ReleaseVariables()
+	{
+		depthBufferView->Release();
+		depthBuffer->Release();
+		constantBuffer->Release();
+		samplerState->Release();
+		renderTargetView->Release();
+		deviceContext->Release();
+		swapChain->Release();
+		device->Release();
+	}
 }
 

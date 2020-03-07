@@ -18,6 +18,12 @@ Object Earth;
 Object Moon;
 Object Mars;
 Object Jupiter;
+Object Saturn;
+Object Uranus;
+Object Neptune;
+Object Pluto;
+Object SaturnRing;
+Object UranusRing;
 
 #define MAX_LOADSTRING 100
 
@@ -134,8 +140,41 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		Matrix::CreatePlanetOrbit(Jupiter, jupiterRotation, jupiterOrbit, -0.0523599f, 570.4f, '5', 5.0f);
 		Jupiter.RenderMesh(Variables::deviceContext);
 
+		static float saturnRotation = 0.0f; saturnRotation += -0.7826f;
+		static float saturnOrbit = 0.0f; saturnOrbit += -0.000034f;
+		Matrix::CreatePlanetOrbit(Saturn, saturnRotation, saturnOrbit, -0.46652651f, 1018.685f, '6', 5.0f);
+		Saturn.RenderMesh(Variables::deviceContext);
+
+		Matrix::CreateRing(SaturnRing, saturnOrbit, 1018.685f, -0.46652651f);
+		SaturnRing.worldMatrix = XMMatrixMultiply(XMMatrixRotationX(-4.6f), SaturnRing.worldMatrix);
+		SaturnRing.RenderMesh(Variables::deviceContext);
+
+		static float uranusRotation = 0.0f; uranusRotation += 0.5070f;
+		static float uranusOrbit = 0.0f; uranusOrbit += -0.000011f;
+		Matrix::CreatePlanetOrbit(Uranus, uranusRotation, uranusOrbit, -1.7064084f, 1983.055f, '7', 10.0f);
+		Uranus.RenderMesh(Variables::deviceContext);
+
+		Matrix::CreateRing(UranusRing, uranusOrbit, 1983.055f, -1.7064084f);
+		UranusRing.RenderMesh(Variables::deviceContext);
+
+		static float neptuneRotation = 0.0f; neptuneRotation += -0.5373f;
+		static float neptuneOrbit = 0.0f; neptuneOrbit += -0.0000059f;
+		Matrix::CreatePlanetOrbit(Neptune, neptuneRotation, neptuneOrbit, -0.488692f, 2868.874f, '8', 10.0f);
+		Neptune.RenderMesh(Variables::deviceContext);
+
+		static float plutoRotation = 0.0f; plutoRotation += -0.5373f;
+		static float plutoOrbit = 0.0f; plutoOrbit += -0.0000059f;
+		Matrix::CreatePlanetOrbit(Pluto, plutoRotation, plutoOrbit, -0.994838f, 3246.144f, '9', 100.0f);
+		Pluto.RenderMesh(Variables::deviceContext);
+
 		Variables::swapChain->Present(0, 0);
 	}
+	UranusRing.Release();
+	SaturnRing.Release();
+	Pluto.Release();
+	Neptune.Release();
+	Uranus.Release();
+	Saturn.Release();
 	Jupiter.Release();
 	Mars.Release();
 	Moon.Release();
@@ -144,14 +183,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Mercury.Release();
 	Sun.Release();
 	Skybox.Release();
-	Variables::depthBufferView->Release();
-	Variables::depthBuffer->Release();
-	Variables::constantBuffer->Release();
-	Variables::samplerState->Release();
-	Variables::renderTargetView->Release();
-	Variables::deviceContext->Release();
-	Variables::swapChain->Release();
-	Variables::device->Release();
+	Variables::ReleaseVariables();
 
 	return (int)msg.wParam;
 }
@@ -242,6 +274,42 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	Jupiter.CreateVertexBufferAndIndexBuffer(Variables::device);
 	Jupiter.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
 	Jupiter.CreateTexture(Variables::device, L"Assets/JupiterTexture.dds");
+
+	Saturn.LoadMesh("Assets/planet.mesh");
+	Saturn.ScaleMesh(7.23f);
+	Saturn.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Saturn.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Saturn.CreateTexture(Variables::device, L"Assets/SaturnTexture.dds");
+
+	Uranus.LoadMesh("Assets/planet.mesh");
+	Uranus.ScaleMesh(3.15f);
+	Uranus.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Uranus.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Uranus.CreateTexture(Variables::device, L"Assets/UranusTexture.dds");
+
+	Neptune.LoadMesh("Assets/planet.mesh");
+	Neptune.ScaleMesh(3.05f);
+	Neptune.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Neptune.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Neptune.CreateTexture(Variables::device, L"Assets/NeptuneTexture.dds");
+
+	Pluto.LoadMesh("Assets/planet.mesh");
+	Pluto.ScaleMesh(0.14f);
+	Pluto.CreateVertexBufferAndIndexBuffer(Variables::device);
+	Pluto.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	Pluto.CreateTexture(Variables::device, L"Assets/PlutoTexture.dds");
+
+	SaturnRing.LoadMesh("Assets/saturnring.mesh");
+	SaturnRing.ScaleMesh(1.25f);
+	SaturnRing.CreateVertexBufferAndIndexBuffer(Variables::device);
+	SaturnRing.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	SaturnRing.CreateTexture(Variables::device, L"Assets/SaturnRingTexture.dds");
+
+	UranusRing.LoadMesh("Assets/saturnring.mesh");
+	UranusRing.ScaleMesh(0.5f);
+	UranusRing.CreateVertexBufferAndIndexBuffer(Variables::device);
+	UranusRing.CreateVertexShaderAndPixelShaderAndInputLayout(Variables::device, ModelVertexShader, sizeof(ModelVertexShader), ModelPixelShader, sizeof(ModelPixelShader));
+	UranusRing.CreateTexture(Variables::device, L"Assets/SaturnRingTexture.dds");
 
 	return TRUE;
 }

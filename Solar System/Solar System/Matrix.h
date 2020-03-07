@@ -99,6 +99,12 @@ namespace Matrix
 		moon.worldMatrix = XMMatrixMultiply(tempMat, moon.worldMatrix);
 	}
 
+	void CreateRing(Object& ring, float planetOrbit, float planetDistance, float ringAngle)
+	{
+		ring.worldMatrix = XMMatrixMultiply(XMMatrixRotationY(ringAngle), XMMatrixTranslation(planetDistance, 0.0f, 0.0f));
+		ring.worldMatrix = XMMatrixMultiply(ring.worldMatrix, XMMatrixRotationY(planetOrbit));
+	}
+
 	void CreateSunRotation(Object& sun, float rotation)
 	{
 		sun.worldMatrix = XMMatrixIdentity();
